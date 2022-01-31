@@ -1,5 +1,6 @@
 #[derive(Default)]
 pub struct Apps {
+    edit: crate::apps::EditEmployee,
     emp: crate::apps::Employee,
     pay: crate::apps::Pay,
 }
@@ -9,6 +10,7 @@ impl Apps {
         vec![
             ("emp", &mut self.emp as &mut dyn epi::App),
             ("pay", &mut self.pay as &mut dyn epi::App),
+            ("edit", &mut self.edit as &mut dyn epi::App),
         ]
         .into_iter()
     }
