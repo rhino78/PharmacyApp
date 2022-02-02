@@ -1,5 +1,7 @@
 use egui::{containers::*, *};
 
+use crate::apps::db_conn;
+
 
 pub struct EditEmployee {
     first_name: String,
@@ -11,8 +13,8 @@ pub struct EditEmployee {
 impl Default for EditEmployee {
     fn default() -> Self {
         Self {
-            first_name: "Pooo".to_string(),
-            last_name: "mcGee".to_string(),
+            first_name: "".to_string(),
+            last_name: "".to_string(),
             address: "".to_string(),
             state: "".to_string(),
         }
@@ -56,7 +58,8 @@ impl EditEmployee {
 
             let button1 = egui::Button::new("Add new Employee");
             if ui.add(button1).clicked(){
-                    println!("{},{},{},{}", self.first_name, self.last_name, self.address, self.state);
+                println!("{},{},{},{}", self.first_name, self.last_name, self.address, self.state);
+                let _result =  db_conn::insert_new_employee(self.first_name.to_string(), self.last_name.to_string());
             }
         });
     }

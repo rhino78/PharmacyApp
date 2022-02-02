@@ -1,5 +1,8 @@
 use egui::{containers::*, *};
 
+// a struct to make employees
+// first_name: String
+// last_name: String
 pub struct Employee {
     pub first_name: String,
     pub last_name: String,
