@@ -67,15 +67,12 @@ impl Employee {
         ui.horizontal(|ui| {
             ui.label("first name");
 
-
         let mut foo = "";
         let response = ui.add(egui::TextEdit::singleline(&mut foo).lock_focus(false).hint_text("Poop"));
 
         if response.changed(){
             println!("{}", foo);
         }
-
-        let button1 = egui::Button::new("click me too!");
 
         let button2 = egui::Button::new("click me");
         if ui.add(button2).clicked(){
