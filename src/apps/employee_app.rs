@@ -25,8 +25,7 @@ impl epi::App for Employee {
     fn update(&mut self, ctx: &CtxRef, _frame: &epi::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ScrollArea::both().auto_shrink([false; 2]).show(ui, |ui| {
-                
-            ui.text_edit_singleline(&mut self.first_name);
+                ui.text_edit_singleline(&mut self.first_name);
                 self.ui(ctx, ui);
                 self.make_button(ctx, ui);
                 self.display_grid(ctx, ui);
@@ -67,22 +66,18 @@ impl Employee {
         ui.horizontal(|ui| {
             ui.label("first name");
 
-        let mut foo = "";
-        let response = ui.add(egui::TextEdit::singleline(&mut foo).lock_focus(false).hint_text("Poop"));
+            let mut foo = "";
+            let _response = ui.add(
+                egui::TextEdit::singleline(&mut foo)
+                    .lock_focus(false)
+                    .hint_text("Poop"),
+            );
 
-        if response.changed(){
-            println!("{}", foo);
-        }
-
-        let button2 = egui::Button::new("click me");
-        if ui.add(button2).clicked(){
-            let foo = "poop";
-            println!("{}", foo);
-        }
-        ui.separator(); 
-        let _response = ui.add(egui::TextEdit::singleline(&mut foo));
-
-        ui.separator(); 
-        });
+           let button2 = egui::Button::new("click me");
+            if ui.add(button2).clicked() {
+                let foo = "poop";
+                println!("{}", foo);
+            }
+       });
     }
 }

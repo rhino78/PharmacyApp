@@ -21,7 +21,7 @@ impl epi::App for Pay {
     }
 
     fn update(&mut self, _ctx: &CtxRef, _frame: &epi::Frame) {
-        println!("connection test:{}", db_conn::test_conn());
+        // println!("connection test:{}", db_conn::test_conn());
         egui::CentralPanel::default().show(_ctx, |ui| {
             ScrollArea::both().auto_shrink([false; 2]).show(ui, |ui| {
                 self.ui(_ctx, ui);
