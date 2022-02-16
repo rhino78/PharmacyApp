@@ -1,5 +1,4 @@
 mod db_conn;
-mod db_methods;
 mod edit_employee;
 mod employee_app;
 mod pay;

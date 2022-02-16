@@ -1,5 +1,3 @@
-use std::fmt::{Alignment, format};
-
 use crate::apps::db_conn;
 use egui::{containers::*, *};
 
@@ -10,8 +8,8 @@ pub struct EditEmployee {
     state: String,
     no_of_dependents: String,
     married: bool,
-    insert_success: bool,
     info_label: String,
+    pay: f64,
 }
 
 impl Default for EditEmployee {
@@ -21,10 +19,10 @@ impl Default for EditEmployee {
             last_name: "".to_string(),
             address: "".to_string(),
             state: "".to_string(),
-            insert_success: false,
             no_of_dependents: "".to_string(),
             married: false,
             info_label: "".to_string(),
+            pay: 0.0,
         }
     }
 }
@@ -40,10 +38,10 @@ impl epi::App for EditEmployee {
             last_name: _,
             address: _,
             state: _,
-            insert_success: _,
             no_of_dependents: _,
             married: _,
             info_label: _,
+            pay: _,
         } = self;
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -68,39 +66,36 @@ impl epi::App for EditEmployee {
                         .on_hover_text("type the state here");
                     ui.label("Married?");
                     ui.checkbox(&mut self.married, "Married");
+                    ui.label("Pay");
+                    ui.text_edit_singleline(&mut self.pay.to_string())
+                        .on_hover_text("type the pay here");
                     let addbtn = egui::Button::new("Add new Employee");
 
                     if ui.add(addbtn).clicked() {
-                        let insert_db_success = db_conn::insert_new_employee(
+                        if let Err(e) = db_conn::insert_new_employee(
                             self.first_name.to_string(),
                             self.last_name.to_string(),
                             self.address.to_string(),
                             self.state.to_string(),
                             self.no_of_dependents.to_string(),
                             self.married.to_string(),
-                        );
-                        if insert_db_success.is_ok() {
-                            self.insert_success = true;
-                            self.info_label = "insert db success".to_string();
+                            self.pay.to_string(),
+                        ) {
+                            eprintln!("bruh: {}", e)
                         } else {
-                            self.insert_success = false;
-                            self.info_label = "insert db fail".to_string();
+                            self.info_label = "db insert successful".to_string();
                         }
                     }
 
                     let clearbtn = egui::Button::new("Clear Employees");
                     if ui.add(clearbtn).clicked() {
-                        let clearresult = db_conn::clear_records();
-                        if clearresult.is_ok() {
-                            self.info_label = "clear db success".to_string();
-                            self.insert_success = true;
+                        if let Err(e) = db_conn::clear_records() {
+                            self.info_label = format!("clear db fail: {}", e);
                         } else {
-                            self.insert_success = false;
-                            self.info_label = "clear db fail".to_string();
+                            self.info_label = "clear db success".to_string();
                         }
                     }
 
-                    // ui.label(format!("the record insert is: {}", self.insert_success));
                     ui.label(self.info_label.to_string());
                 });
             });
@@ -149,5 +144,5 @@ impl epi::App for EditEmployee {
 }
 
 impl EditEmployee {
-    pub fn ui(&mut self, _ctx: &CtxRef, ui: &mut Ui) {}
+    pub fn ui(&mut self, _ctx: &CtxRef, _ui: &mut Ui) {}
 }
