@@ -16,6 +16,9 @@ egui = "0.16.0" # Gives us egui, epi and web+native backends
 epi = "0.16.0" # Gives us egui, epi and web+native backends
 mysql = "*"
 rusqlite = "*"
+egui-datepicker = "*"
+chrono = "*"
+derivative = "*"
 
 serde = { version = "1", features = ["derive"], optional = true }
 

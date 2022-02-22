@@ -1,7 +1,10 @@
+use chrono::Date;
 use mysql::prelude::*;
 use mysql::*;
 
 use super::Employee;
+use super::Pay;
+// use chrono::{TimeZone, Utc};
 
 const CONN_STR: &str = "mysql://user1:password1@localhost:3306/testDB";
 
@@ -16,36 +19,74 @@ pub fn clear_records() -> std::result::Result<(), mysql::Error> {
             eprintln!("{}", e);
         }
         Err(mysql::Error::MySqlError(e)) => {
-            print!("got a mysql error");
-            println!("{}", e);
+            println!("error clearing records: {}", e);
         }
         Err(e) => {
-            print!("got a general error");
-            eprintln!("{}", e);
+            eprintln!("got a general error: {}", e);
         }
     })
 }
 
-pub fn select_all_emp() -> std::result::Result<std::result::Result<std::vec::Vec<Employee>, mysql::Error>, mysql::Error> {
+pub fn select_all_pay(
+) -> std::result::Result<std::result::Result<std::vec::Vec<Pay>, mysql::Error>, mysql::Error> {
+    let opts = get_opts();
+    let pool = Pool::new_manual(1, 1, opts).unwrap();
+    let mut conn = pool.get_conn().unwrap();
+    let selected_pay = conn.query_map(
+        "select pay, hours, paydate from pay;",
+        |(pay, hours, paydate)| -> Pay { 
+            Pay {
+            pay,
+            hours,
+            paydate,
+            info_label: "".to_string(),
+            payrate: "".to_string(),
+            withholding: "".to_string(),
+            roth_ira: "".to_string(),
+        }},
+    );
+
+    Ok(selected_pay)
+}
+
+pub fn select_all_emp(
+) -> std::result::Result<std::result::Result<std::vec::Vec<Employee>, mysql::Error>, mysql::Error> {
     let opts = get_opts();
     let pool = Pool::new_manual(1, 1, opts).unwrap();
     let mut conn = pool.get_conn().unwrap();
 
-    let selected_emp = conn.query_map("select id, first, last from employees;", |(id, first_name, last_name)| {
-        Employee { id, first_name, last_name }
+    let selected_emp = conn.query_map(
+        "select id, first, last from employees;",
+        |(id, first_name, last_name)| Employee {
+            id,
+            first_name,
+            last_name,
         },
-        );
+    );
 
     Ok(selected_emp)
 }
 
-pub fn insert_new_pay(pay: String, hours: String, date: String) -> std::result::Result<(), mysql::Error> {
+// CREATE TABLE `testDB`.`pay` (
+//   `id` INT NOT NULL AUTO_INCREMENT,
+//   `pay` DECIMAL NOT NULL,
+//   `hours` DECIMAL NOT NULL,
+//   `paydate` DATE NOT NULL,
+//   PRIMARY KEY (`id`));
+
+pub fn insert_new_pay(
+    pay: String,
+    hours: String,
+    date: String,
+) -> std::result::Result<(), mysql::Error> {
     let opts = get_opts();
     let pool = Pool::new_manual(1, 1, opts).unwrap();
     let mut conn = pool.get_conn().unwrap();
 
     let insert_str = format!(
-        "insert into pay (id, pay, hours, date) values('1','{}','{}','{}');", pay, hours, date);
+        "insert into pay (pay, hours, paydate) values('{}','{}','{}');",
+        pay, hours, date
+    );
 
     Ok(match conn.query_drop(&insert_str) {
         Ok(_) => {}
@@ -53,15 +94,14 @@ pub fn insert_new_pay(pay: String, hours: String, date: String) -> std::result::
             eprintln!("{}", e);
         }
         Err(mysql::Error::MySqlError(e)) => {
-            print!("got a mysql error");
-            println!("{}", e);
+            println!("error inserting pay: {}", e);
+            println!("{}", insert_str);
         }
         Err(e) => {
             print!("got a general error");
             eprintln!("{}", e);
         }
     })
-
 }
 
 pub fn insert_new_employee(
