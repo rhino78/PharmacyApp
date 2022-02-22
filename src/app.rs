@@ -23,8 +23,6 @@ pub struct PharmacyApp {
 }
 
 impl epi::App for PharmacyApp {
-    /// Called each time the UI needs repainting, which may be many times per second.
-    /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::CtxRef, frame: &epi::Frame) {
         if self.selected_anchor.is_empty() {
             self.selected_anchor = self.apps.iter_mut().next().unwrap().0.to_owned();

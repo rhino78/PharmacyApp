@@ -1,8 +1,6 @@
 use egui::{containers::*, *};
 
 use super::db_conn::select_all_emp;
-// use super::db_methods::init;
-// use super::db_methods::is_database_up;
 /// a struct to make employees
 /// first_name: String
 /// last_name: String
@@ -25,7 +23,7 @@ impl Default for Employee {
 
 impl epi::App for Employee {
     fn name(&self) -> &str {
-        "Employee"
+        "Employee List"
     }
 
     fn update(&mut self, ctx: &CtxRef, _frame: &epi::Frame) {
@@ -41,9 +39,6 @@ impl epi::App for Employee {
 impl Employee {
     pub fn ui(&mut self, _ctx: &CtxRef, _ui: &mut Ui) {}
     fn display_grid(&mut self, _ctx: &CtxRef, _ui: &mut Ui) {
-
-        //maybe lets try and grab all the employees from here
-        //giving me the ok, but what I really want is a list. need to look up more there
         let emps = select_all_emp();
         match emps {
             Ok(emp) => {
@@ -55,39 +50,14 @@ impl Employee {
                     ui.end_row();
 
                     for b in bruh.iter() {
-
-                    ui.label(b.id.to_string());
-                    ui.label(b.first_name.to_string());
-                    ui.label(b.last_name.to_string());
-                    ui.end_row();
+                        ui.label(b.id.to_string());
+                        ui.label(b.first_name.to_string());
+                        ui.label(b.last_name.to_string());
+                        ui.end_row();
                     }
                 });
-                },
-                Err(e) => eprintln!("{}", e),
-            };
-
-        // egui::Grid::new("myGrid").striped(true).show(_ui, |ui| {
-        //     ui.label("id");
-        //     ui.label("First Name");
-        //     ui.label("Last Name");
-        //     ui.end_row();
-
-        //     ui.label("ID");
-        //     ui.label(&self.first_name);
-        //     ui.label(&self.last_name);
-        //     ui.end_row();
-        //     ui.label("ID");
-        //     ui.label(&self.first_name);
-        //     ui.label(&self.last_name);
-        //     ui.end_row();
-        //     ui.label("ID");
-        //     ui.label(&self.first_name);
-        //     ui.label(&self.last_name);
-        //     ui.end_row();
-        //     ui.label("ID");
-        //     ui.label(&self.first_name);
-        //     ui.label(&self.last_name);
-        //     ui.end_row();
-        // });
+            }
+            Err(e) => eprintln!("{}", e),
+        };
     }
 }

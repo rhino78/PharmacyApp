@@ -49,28 +49,8 @@ impl epi::App for EditEmployee {
                 self.ui(ctx, ui);
                 ui.set_max_width(600.0);
                 ui.vertical(|ui| {
-                    ui.label("First Name");
-                    ui.text_edit_singleline(&mut self.first_name)
-                        .on_hover_text("type the first name here");
-                    ui.label("Last Name");
-                    ui.text_edit_singleline(&mut self.last_name)
-                        .on_hover_text("type the last name here");
-                    ui.label("Address");
-                    ui.text_edit_singleline(&mut self.address)
-                        .on_hover_text("type the address here");
-                    ui.label("State");
-                    ui.text_edit_singleline(&mut self.state)
-                        .on_hover_text("type the state here");
-                    ui.label("Number of Dependents");
-                    ui.text_edit_singleline(&mut self.no_of_dependents)
-                        .on_hover_text("type the state here");
-                    ui.label("Married?");
-                    ui.checkbox(&mut self.married, "Married");
-                    ui.label("Pay");
-                    ui.text_edit_singleline(&mut self.pay.to_string())
-                        .on_hover_text("type the pay here");
+                    self.init_labels(ctx, ui);
                     let addbtn = egui::Button::new("Add new Employee");
-
                     if ui.add(addbtn).clicked() {
                         if let Err(e) = db_conn::insert_new_employee(
                             self.first_name.to_string(),
@@ -109,40 +89,30 @@ impl epi::App for EditEmployee {
         _storage: Option<&dyn epi::Storage>,
     ) {
     }
-
-    fn warm_up_enabled(&self) -> bool {
-        false
-    }
-
-    fn save(&mut self, _storage: &mut dyn epi::Storage) {}
-
-    fn on_exit(&mut self) {}
-
-    fn auto_save_interval(&self) -> std::time::Duration {
-        std::time::Duration::from_secs(30)
-    }
-
-    fn max_size_points(&self) -> egui::Vec2 {
-        // Some browsers get slow with huge WebGL canvases, so we limit the size:
-        egui::Vec2::new(1024.0, 2048.0)
-    }
-
-    fn clear_color(&self) -> egui::Rgba {
-        // NOTE: a bright gray makes the shadows of the windows look weird.
-        // We use a bit of transparency so that if the user switches on the
-        // `transparent()` option they get immediate results.
-        egui::Color32::from_rgba_unmultiplied(12, 12, 12, 180).into()
-    }
-
-    fn persist_native_window(&self) -> bool {
-        true
-    }
-
-    fn persist_egui_memory(&self) -> bool {
-        true
-    }
 }
 
 impl EditEmployee {
     pub fn ui(&mut self, _ctx: &CtxRef, _ui: &mut Ui) {}
+    pub fn init_labels(&mut self, _ctx: &CtxRef, ui: &mut Ui) {
+        ui.label("First Name");
+        ui.text_edit_singleline(&mut self.first_name)
+            .on_hover_text("type the first name here");
+        ui.label("Last Name");
+        ui.text_edit_singleline(&mut self.last_name)
+            .on_hover_text("type the last name here");
+        ui.label("Address");
+        ui.text_edit_singleline(&mut self.address)
+            .on_hover_text("type the address here");
+        ui.label("State");
+        ui.text_edit_singleline(&mut self.state)
+            .on_hover_text("type the state here");
+        ui.label("Number of Dependents");
+        ui.text_edit_singleline(&mut self.no_of_dependents)
+            .on_hover_text("type the state here");
+        ui.label("Married?");
+        ui.checkbox(&mut self.married, "Married");
+        ui.label("Pay");
+        ui.text_edit_singleline(&mut self.pay.to_string())
+            .on_hover_text("type the pay here");
+    }
 }
