@@ -9,7 +9,11 @@ struct Admins {
 
 impl Default for Admins {
     fn default() -> Self {
-        Self::from_admins(vec![Box::new(super::user_name_pw::UserNamePW::default())])
+        Self::from_admins(vec![
+            Box::new(super::user_name_pw::UserNamePW::default()),
+            Box::new(super::pay_entry::PayEntry::default()),
+            Box::new(super::edit_employee::EditEmployee::default()),
+        ])
     }
 }
 
@@ -68,7 +72,7 @@ impl AdminWindows {
             .default_width(180.0)
             .show(ctx, |ui| {
                 ui.vertical_centered(|ui| {
-                    ui.heading("admin");
+                    ui.heading("Admin");
                 });
                 ui.separator();
 
