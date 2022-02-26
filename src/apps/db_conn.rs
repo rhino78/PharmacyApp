@@ -1,4 +1,5 @@
 use chrono::Date;
+use chrono::Utc;
 use mysql::prelude::*;
 use mysql::*;
 
@@ -34,16 +35,17 @@ pub fn select_all_pay(
     let mut conn = pool.get_conn().unwrap();
     let selected_pay = conn.query_map(
         "select pay, hours, paydate from pay;",
-        |(pay, hours, paydate)| -> Pay { 
+        |(pay, hours, paydate)| -> Pay {
             Pay {
-            pay,
-            hours,
-            paydate,
-            info_label: "".to_string(),
-            payrate: "".to_string(),
-            withholding: "".to_string(),
-            roth_ira: "".to_string(),
-        }},
+                pay,
+                hours,
+                paydate,
+                info_label: "".to_string(),
+                payrate: "".to_string(),
+                withholding: "".to_string(),
+                roth_ira: "".to_string(),
+            }
+        },
     );
 
     Ok(selected_pay)

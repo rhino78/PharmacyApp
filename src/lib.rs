@@ -5,3 +5,4 @@
 mod app;
 mod apps;
 pub use app::PharmacyApp;
+pub use apps::AdminApp;
