@@ -1,5 +1,6 @@
 #[derive(Default)]
 pub struct Apps {
+    admin: crate::apps::AdminApp,
     edit: crate::apps::EditEmployee,
     emp: crate::apps::Employee,
     pay: crate::apps::Pay,
@@ -8,6 +9,7 @@ pub struct Apps {
 impl Apps {
     fn iter_mut(&mut self) -> impl Iterator<Item = (&str, &mut dyn epi::App)> {
         vec![
+            ("admin", &mut self.admin as &mut dyn epi::App),
             ("emp", &mut self.emp as &mut dyn epi::App),
             ("pay", &mut self.pay as &mut dyn epi::App),
             ("edit", &mut self.edit as &mut dyn epi::App),
@@ -69,6 +71,30 @@ impl epi::App for PharmacyApp {
 
     fn name(&self) -> &str {
         "Pharmacy App"
+    }
+
+    fn auto_save_interval(&self) -> std::time::Duration {
+        std::time::Duration::from_secs(30)
+    }
+
+    fn max_size_points(&self) -> egui::Vec2 {
+        // Some browsers get slow with huge WebGL canvases, so we limit the size:
+        egui::Vec2::new(1024.0, 2048.0)
+    }
+
+    fn clear_color(&self) -> egui::Rgba {
+        // NOTE: a bright gray makes the shadows of the windows look weird.
+        // We use a bit of transparency so that if the user switches on the
+        // `transparent()` option they get immediate results.
+        egui::Color32::from_rgba_unmultiplied(12, 12, 12, 180).into()
+    }
+
+    fn persist_native_window(&self) -> bool {
+        true
+    }
+
+    fn persist_egui_memory(&self) -> bool {
+        true
     }
 }
 
