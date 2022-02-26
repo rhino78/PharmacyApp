@@ -143,3 +143,26 @@ fn get_opts() -> Opts {
     let url = CONN_STR.to_string();
     Opts::from_url(&*url).unwrap()
 }
+
+pub fn get_emp_list() -> std::vec::Vec<std::string::String> {
+    let opts = get_opts();
+    let pool = Pool::new_manual(1, 1, opts).unwrap();
+    let mut conn = pool.get_conn().unwrap();
+
+    let selected_emp = conn.query_map(
+        "select id, first, last from employees;",
+        |(id, first_name, last_name)| Employee {
+            id,
+            first_name,
+            last_name,
+        },
+    );
+
+    let bruh = selected_emp.unwrap();
+
+    let mut results = vec![];
+    for s in bruh {
+        results.push(s.first_name.to_string());
+    }
+    results
+}

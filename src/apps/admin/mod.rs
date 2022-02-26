@@ -1,5 +1,7 @@
 pub mod admin_windows;
 pub mod app;
+pub mod edit_employee;
+pub mod pay_entry;
 pub mod user_name_pw;
 pub mod widget_gallery;
 
