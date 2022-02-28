@@ -1,11 +1,8 @@
-use chrono::Date;
-use chrono::Utc;
 use mysql::prelude::*;
 use mysql::*;
 
 use super::Employee;
 use super::Pay;
-// use chrono::{TimeZone, Utc};
 
 const CONN_STR: &str = "mysql://user1:password1@localhost:3306/testDB";
 
@@ -139,12 +136,7 @@ pub fn insert_new_employee(
     })
 }
 
-fn get_opts() -> Opts {
-    let url = CONN_STR.to_string();
-    Opts::from_url(&*url).unwrap()
-}
-
-pub fn get_emp_list() -> std::vec::Vec<std::string::String> {
+pub fn get_emp_obj() -> Result<Vec<Employee>> {
     let opts = get_opts();
     let pool = Pool::new_manual(1, 1, opts).unwrap();
     let mut conn = pool.get_conn().unwrap();
@@ -158,11 +150,10 @@ pub fn get_emp_list() -> std::vec::Vec<std::string::String> {
         },
     );
 
-    let bruh = selected_emp.unwrap();
+    selected_emp
+}
 
-    let mut results = vec![];
-    for s in bruh {
-        results.push(s.first_name.to_string());
-    }
-    results
+fn get_opts() -> Opts {
+    let url = CONN_STR.to_string();
+    Opts::from_url(&*url).unwrap()
 }
