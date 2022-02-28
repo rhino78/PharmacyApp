@@ -1,11 +1,11 @@
 pub mod admin_windows;
 pub mod app;
 pub mod edit_employee;
+pub mod insert_employee;
 pub mod pay_entry;
 pub mod user_name_pw;
-pub mod widget_gallery;
 
-pub use {admin_windows::AdminWindows, app::AdminApp, widget_gallery::WidgetGallery};
+pub use {admin_windows::AdminWindows, app::AdminApp};
 
 pub trait View {
     fn ui(&mut self, ui: &mut egui::Ui);

@@ -1,9 +1,5 @@
-use crate::apps::db_conn;
-use chrono::{Date, TimeZone, Utc};
+use super::db_conn::{self, select_all_pay};
 use egui::{containers::*, *};
-use egui_datepicker::DatePicker;
-
-use super::db_conn::select_all_pay;
 
 pub struct Pay {
     pub pay: String,
@@ -51,22 +47,13 @@ impl epi::App for Pay {
         egui::CentralPanel::default().show(ctx, |ui| {
             ScrollArea::both().auto_shrink([false; 2]).show(ui, |ui| {
                 ui.set_max_width(200.0);
-                self.init_labels(ctx, ui);
 
-                let addbtn = egui::Button::new("Add new Pay");
-                if ui.add(addbtn).clicked() {
-                    if let Err(e) = db_conn::insert_new_pay(
-                        self.pay.to_string(),
-                        self.hours.to_string(),
-                        // self.paydate.format("%F").to_string(),
-                        self.paydate.to_string(),
-                    ) {
-                        self.info_label = format!("db insert pay failed {}", e).to_string();
-                    } else {
-                        self.info_label = "success".to_string();
+                let clearbtn = egui::Button::new("Clear All records");
+                if ui.add(clearbtn).clicked() {
+                    if let Err(e) = db_conn::clear_records() {
+                        eprintln!("bruh: {}", e)
                     }
                 }
-                ui.label(self.info_label.to_string());
                 ui.separator();
                 self.display_grid(ctx, ui);
             });
@@ -105,21 +92,5 @@ impl Pay {
             }
             Err(e) => eprintln!("{}", e),
         };
-    }
-    fn init_labels(&mut self, _ctx: &CtxRef, ui: &mut Ui) {
-        ui.label("pay");
-        ui.text_edit_singleline(&mut self.pay);
-        ui.label("hours");
-        ui.text_edit_singleline(&mut self.hours);
-        ui.label("paydate");
-        // ui.add(DatePicker::new("datepicker-unique-id", &mut self.paydate));
-        ui.text_edit_singleline(&mut self.paydate);
-        ui.label("payrate");
-        ui.label(self.payrate.to_string());
-        ui.label("withholding");
-        ui.label(self.withholding.to_string());
-        ui.label("roth");
-        ui.label(self.roth_ira.to_string());
-        ui.separator();
     }
 }

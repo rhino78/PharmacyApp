@@ -1,5 +1,5 @@
 use super::Admin;
-use egui::{Context, CtxRef, ScrollArea, Ui};
+use egui::{CtxRef, ScrollArea, Ui};
 use std::collections::BTreeSet;
 
 struct Admins {
@@ -13,19 +13,14 @@ impl Default for Admins {
             Box::new(super::user_name_pw::UserNamePW::default()),
             Box::new(super::pay_entry::PayEntry::default()),
             Box::new(super::edit_employee::EditEmployee::default()),
+            Box::new(super::insert_employee::InsertEmployee::default()),
         ])
     }
 }
 
 impl Admins {
     pub fn from_admins(admins: Vec<Box<dyn Admin>>) -> Self {
-        let mut open = BTreeSet::new();
-        open.insert(
-            super::widget_gallery::WidgetGallery::default()
-                .name()
-                .to_owned(),
-        );
-
+        let open = BTreeSet::new();
         Self { admins, open }
     }
 
