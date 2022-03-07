@@ -14,6 +14,7 @@ impl Default for Admins {
             Box::new(super::pay_entry::PayEntry::default()),
             Box::new(super::edit_employee::EditEmployee::default()),
             Box::new(super::insert_employee::InsertEmployee::default()),
+            Box::new(super::database_administration::Database::default()),
         ])
     }
 }

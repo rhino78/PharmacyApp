@@ -9,6 +9,11 @@ pub struct Employee {
     pub id: String,
     pub first_name: String,
     pub last_name: String,
+    pub address: String,
+    pub state: String,
+    pub married: String,
+    pub dependents: String,
+    pub pay: String,
 }
 
 impl Default for Employee {
@@ -17,6 +22,11 @@ impl Default for Employee {
             id: "".to_string(),
             first_name: "".to_string(),
             last_name: "".to_string(),
+            address: "".to_string(),
+            state: "".to_string(),
+            married: "".to_string(),
+            dependents: "".to_string(),
+            pay: "".to_string(),
         }
     }
 }
