@@ -41,6 +41,7 @@ impl epi::App for Employee {
             ScrollArea::both().auto_shrink([false; 2]).show(ui, |ui| {
                 self.ui(ctx, ui);
                 self.display_grid(ctx, ui);
+                self.ui(ctx, ui);
             });
         });
     }

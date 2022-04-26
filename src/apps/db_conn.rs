@@ -4,7 +4,22 @@ use mysql::*;
 use super::Employee;
 use super::Pay;
 
+#[derive(Debug)]
+pub struct Database {
+    database: String,
+}
 const CONN_STR: &str = "mysql://user1:password1@localhost:3306/testDB";
+
+pub fn has_db(
+) -> std::result::Result<std::result::Result<std::vec::Vec<Database>, mysql::Error>, mysql::Error> {
+    let opts = get_opts();
+    let pool = Pool::new_manual(1, 1, opts).unwrap();
+    let mut conn = pool.get_conn().unwrap();
+    let select_db = conn.query_map("SHOW Databases like 'testDB%';", |database| Database {
+        database,
+    });
+    Ok(select_db)
+}
 
 pub fn clear_records() -> std::result::Result<(), mysql::Error> {
     let opts = get_opts();
@@ -25,11 +40,43 @@ pub fn clear_records() -> std::result::Result<(), mysql::Error> {
     })
 }
 
-pub fn create_database() -> std::result::Result<(), mysql::Error> {
+pub fn create_database() -> Result<(), mysql::Error> {
+    let emp = create_emp();
+    let pay = create_pay();
+}
+
+pub fn create_emp() -> std::result::Result<(), mysql::Error> {
     let opts = get_opts();
     let pool = Pool::new_manual(1, 1, opts).unwrap();
     let mut conn = pool.get_conn().unwrap();
+    let insert_str = "CREATE TABLE 'testDB'.'employees' ('id' int(11 NOT NULL, 
+'first' varchar(45) DEFAULT NULL, 
+'last' varchar(45) DEFAULT NULL, 
+'address' varchar(45) DEFAULT NULL, 
+'state' varchar(45) DEFAULT NULL, 
+'marital' varchar(45) DEFAULT NULL, 
+'dependents' varchar(45) DEFAULT NULL, 
+'pay' varchar(45) DEFAULT NULL, 
+));";
 
+    Ok(match conn.query_drop(&insert_str) {
+        Ok(_) => {}
+        Err(mysql::Error::IoError(e)) => {
+            eprintln!("{}", e);
+        }
+        Err(mysql::Error::MySqlError(e)) => {
+            println!("error clearing records: {}", e);
+        }
+        Err(e) => {
+            eprintln!("got a general error: {}", e);
+        }
+    })
+}
+
+pub fn create_pay() -> std::result::Result<(), mysql::Error> {
+    let opts = get_opts();
+    let pool = Pool::new_manual(1, 1, opts).unwrap();
+    let mut conn = pool.get_conn().unwrap();
     let insert_str = "CREATE TABLE `testDB`.`pay` (`id` INT NOT NULL AUTO_INCREMENT, `pay` DECIMAL NOT NULL, `hours` DECIMAL NOT NULL, `paydate` DATE NOT NULL, PRIMARY KEY (`id`));";
 
     Ok(match conn.query_drop(&insert_str) {
@@ -223,3 +270,4 @@ fn get_opts() -> Opts {
     let url = CONN_STR.to_string();
     Opts::from_url(&*url).unwrap()
 }
+

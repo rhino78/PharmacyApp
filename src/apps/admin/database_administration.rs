@@ -1,15 +1,18 @@
 use egui::{CtxRef, Ui, Window};
+use sysinfo::{ProcessExt, System, SystemExt};
 
 use crate::apps::db_conn;
 
 pub struct Database {
-    results: String,
+    service: String,
+    is_initialized: bool,
 }
 
 impl Default for Database {
     fn default() -> Self {
         Self {
-            results: "ready".to_string(),
+            service: "Not Ready".to_string(),
+            is_initialized: false,
         }
     }
 }
@@ -40,16 +43,34 @@ impl super::View for Database {
             ui.label("Database");
         });
         ui.separator();
-        ui.label(&self.results);
+        if self.service == "Not Ready" {
+            let s = System::new_all();
+            for process in s.processes_by_exact_name("mariadbd") {
+                println!("{}", process.name());
+                self.service = "Ready".to_string();
+            }
+        }
+        if !self.is_initialized {
+            let foo = db_conn::has_db();
+            match foo {
+                Ok(_f) => self.is_initialized = true,
+                Err(e) => println!("error getting databse: {:?}", e),
+            }
+        }
+
+        ui.label(format!("the service is: {}", &self.service));
+        ui.label(format!(
+            "the database is: {}",
+            &self.is_initialized.to_string()
+        ));
         self.ui_control(ui);
 
         let createdatabase = egui::Button::new("Create Database");
         if ui.add(createdatabase).clicked() {
             if let Err(e) = db_conn::create_database() {
-                self.results = e.to_string();
+                self.service = e.to_string();
                 eprintln!("bruh: {}", e)
             }
         }
-
     }
 }

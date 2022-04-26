@@ -9,9 +9,21 @@ pub struct EditEmployee {
     address: String,
     state: String,
     no_of_dependents: String,
-    married: bool,
-    pay: f64,
+    married: String,
+    pay: String,
     selected_index: usize,
+}
+
+#[derive(Debug)]
+pub struct Employee {
+    pub id: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub address: String,
+    pub state: String,
+    pub married: String,
+    pub dependents: String,
+    pub pay: String,
 }
 
 impl Default for EditEmployee {
@@ -23,17 +35,35 @@ impl Default for EditEmployee {
             address: "".to_string(),
             state: "".to_string(),
             no_of_dependents: "".to_string(),
-            married: false,
-            pay: 0.0,
+            married: "".to_string(),
+            pay: "".to_string(),
             selected_index: 0,
         }
     }
 }
 
 impl EditEmployee {
-    // pub fn update() {}
-
     pub fn ui_control(&mut self, ui: &mut egui::Ui) {
+        let emp_list = db_conn::get_emp_obj();
+        let bruh = emp_list.unwrap();
+
+        print_type_of(&bruh);
+
+        egui::ComboBox::from_label("Select Employee").show_index(
+            ui,
+            &mut self.selected_index,
+            bruh.len(),
+            |i| bruh[i].first_name.to_string(),
+        );
+
+        ui.label("Selected Id");
+        ui.text_edit_singleline(&mut self.selected_index.to_string());
+        ui.label("first name");
+        ui.text_edit_singleline(&mut self.first_name.to_string());
+        ui.separator();
+    }
+
+    pub fn ui_control_old(&mut self, ui: &mut egui::Ui) {
         let emp_list = db_conn::get_emp_obj();
         let bruh = emp_list.unwrap();
 
@@ -72,6 +102,10 @@ impl EditEmployee {
     }
 }
 
+fn print_type_of<T>(_: &T) {
+    println!("{}", std::any::type_name::<T>())
+}
+
 impl super::Admin for EditEmployee {
     fn name(&self) -> &'static str {
         "Edit Employee"
@@ -90,14 +124,9 @@ impl super::Admin for EditEmployee {
 
 impl super::View for EditEmployee {
     fn ui(&mut self, ui: &mut Ui) {
-        ui.vertical_centered(|ui| {
-            ui.label("Edit Employee");
-        });
-        ui.separator();
         self.ui_control(ui);
 
-        //TODO: add update fn to db_conn
-        let addbtn = egui::Button::new("Edit Employee");
+        let addbtn = egui::Button::new("Edit Employee in database");
         if ui.add(addbtn).clicked() {
             if let Err(e) = db_conn::update_employee(
                 self.id.to_string(),

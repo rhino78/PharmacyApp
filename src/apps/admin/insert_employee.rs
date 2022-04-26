@@ -7,9 +7,10 @@ pub struct InsertEmployee {
     last_name: String,
     address: String,
     state: String,
+    state_selected: usize,
     no_of_dependents: String,
     married: bool,
-    pay: f64,
+    pay: f32,
 }
 
 impl Default for InsertEmployee {
@@ -19,6 +20,7 @@ impl Default for InsertEmployee {
             last_name: "".to_string(),
             address: "".to_string(),
             state: "".to_string(),
+            state_selected: 0,
             no_of_dependents: "".to_string(),
             married: false,
             pay: 0.0,
@@ -40,16 +42,32 @@ impl InsertEmployee {
         ui.text_edit_singleline(&mut self.address)
             .on_hover_text("type the address here");
         ui.label("State");
-        ui.text_edit_singleline(&mut self.state)
-            .on_hover_text("type the state here");
+
+        let states: [&str; 2] = ["Texas", "Oklahoma"];
+
+        egui::ComboBox::from_label("Select State").show_index(
+            ui,
+            &mut self.state_selected,
+            states.len(),
+            |i| states[i].to_string(),
+        );
+
         ui.label("Number of Dependents");
         ui.text_edit_singleline(&mut self.no_of_dependents)
             .on_hover_text("type the state here");
         ui.label("Married?");
         ui.checkbox(&mut self.married, "Married");
         ui.label("Pay");
-        ui.text_edit_singleline(&mut self.pay.to_string())
-            .on_hover_text("type the pay here");
+        ui.add(
+            egui::Slider::new(&mut self.pay, 8.5..=100.0)
+                .orientation(SliderOrientation::Vertical)
+                .logarithmic(true)
+                .clamp_to_range(true)
+                .text("per hour"),
+        )
+        .on_hover_text("Pay");
+        // ui.text_edit_singleline(&mut self.pay)
+        //     .on_hover_text("type the pay here");
     }
 }
 
