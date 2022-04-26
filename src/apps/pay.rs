@@ -51,9 +51,13 @@ impl epi::App for Pay {
                 let clearbtn = egui::Button::new("Clear All records");
                 if ui.add(clearbtn).clicked() {
                     if let Err(e) = db_conn::clear_records() {
+                        self.info_label = e.to_string();
                         eprintln!("bruh: {}", e)
+                    } else {
+                        self.info_label = "Employee List Cleared".to_string();
                     }
                 }
+                ui.label(&self.info_label);
                 ui.separator();
                 self.display_grid(ctx, ui);
             });

@@ -1,5 +1,6 @@
 pub mod admin_windows;
 pub mod app;
+pub mod database_administration;
 pub mod edit_employee;
 pub mod insert_employee;
 pub mod pay_entry;
