@@ -40,9 +40,10 @@ pub fn clear_records() -> std::result::Result<(), mysql::Error> {
     })
 }
 
-pub fn create_database() -> Result<(), mysql::Error> {
-    let emp = create_emp();
-    let pay = create_pay();
+pub fn create_database() {
+    // let emp = create_emp();
+    // let pay = create_pay();
+    print!("creating database");
 }
 
 pub fn create_emp() -> std::result::Result<(), mysql::Error> {
