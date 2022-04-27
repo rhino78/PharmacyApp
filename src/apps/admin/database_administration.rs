@@ -67,10 +67,10 @@ impl super::View for Database {
 
         let createdatabase = egui::Button::new("Create Database");
         if ui.add(createdatabase).clicked() {
-            if let Err(e) = db_conn::create_database() {
-                self.service = e.to_string();
-                eprintln!("bruh: {}", e)
-            }
+            // if let Err(e) = db_conn::create_database() {
+            //     self.service = e.to_string();
+            //     eprintln!("bruh: {}", e)
+            // }
         }
     }
 }
