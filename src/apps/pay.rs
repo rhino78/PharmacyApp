@@ -79,7 +79,7 @@ impl Pay {
         let pay_list = select_all_pay();
         match pay_list {
             Ok(pay_list) => {
-                let bruh = pay_list.unwrap();
+                let bruh = pay_list;
                 egui::Grid::new("pay_list").striped(true).show(_ui, |ui| {
                     ui.label("pay");
                     ui.label("hours");

@@ -14,11 +14,11 @@ crate-type = ["cdylib", "rlib"]
 eframe = "0.16.0" # Gives us egui, epi and web+native backends
 egui = "0.16.0" # Gives us egui, epi and web+native backends
 epi = "0.16.0" # Gives us egui, epi and web+native backends
-mysql = "*"
 egui-datepicker = "*"
 chrono = "*"
 derivative = "*"
 sysinfo = "*"
+rusqlite = "0.27.0"
 
 serde = { version = "1", features = ["derive"], optional = true }
 

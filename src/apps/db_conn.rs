@@ -1,180 +1,103 @@
-use mysql::prelude::*;
-use mysql::*;
+use rusqlite::params;
+use rusqlite::{Connection, Result};
 
 use super::Employee;
 use super::Pay;
 
-#[derive(Debug)]
-pub struct Database {
-    database: String,
-}
-const CONN_STR: &str = "mysql://user1:password1@localhost:3306/testDB";
+const CONN_STR: &str = "./my_db.db3";
 
-pub fn has_db(
-) -> std::result::Result<std::result::Result<std::vec::Vec<Database>, mysql::Error>, mysql::Error> {
-    let opts = get_opts();
-    let pool = Pool::new_manual(1, 1, opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
-    let select_db = conn.query_map("SHOW Databases like 'testDB%';", |database| Database {
-        database,
-    });
-    Ok(select_db)
+pub fn get_db() -> Result<Connection> {
+    Ok(Connection::open(&CONN_STR)?)
 }
 
-pub fn clear_records() -> std::result::Result<(), mysql::Error> {
-    let opts = get_opts();
-    let pool = Pool::new_manual(1, 1, opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
+pub fn clear_records() -> Result<()> {
+    let conn = get_db().unwrap();
     let insert_str = "set sql_safe_updates = 0; DELETE FROM testDB.employees WHERE id =1; set sql_safe_updates = 1;";
-    Ok(match conn.query_drop(&insert_str) {
-        Ok(_) => {}
-        Err(mysql::Error::IoError(e)) => {
-            eprintln!("{}", e);
-        }
-        Err(mysql::Error::MySqlError(e)) => {
-            println!("error clearing records: {}", e);
-        }
-        Err(e) => {
-            eprintln!("got a general error: {}", e);
-        }
-    })
+    let mut stmt = conn.prepare(insert_str)?;
+    stmt.execute([])?;
+    Ok(())
 }
 
-pub fn create_database() {
-    // let emp = create_emp();
-    // let pay = create_pay();
-    print!("creating database");
+pub fn create_emp() -> Result<()> {
+    let insert_str = "CREATE TABLE IF NOT EXISTS employees (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        first TEXT NULL,
+        last TEXT NULL,
+        address TEXT NULL,
+        state TEXT NULL,
+        marital TEXT NULL,
+        dependents TEXT NULL,
+        pay TEXT NULL);";
+
+    let conn = get_db().unwrap();
+    let mut stmt = conn.prepare(insert_str)?;
+    stmt.execute([])?;
+    Ok(())
 }
 
-pub fn create_emp() -> std::result::Result<(), mysql::Error> {
-    let opts = get_opts();
-    let pool = Pool::new_manual(1, 1, opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
-    let insert_str = "CREATE TABLE 'testDB'.'employees' ('id' int(11 NOT NULL, 
-'first' varchar(45) DEFAULT NULL, 
-'last' varchar(45) DEFAULT NULL, 
-'address' varchar(45) DEFAULT NULL, 
-'state' varchar(45) DEFAULT NULL, 
-'marital' varchar(45) DEFAULT NULL, 
-'dependents' varchar(45) DEFAULT NULL, 
-'pay' varchar(45) DEFAULT NULL, 
-));";
-
-    Ok(match conn.query_drop(&insert_str) {
-        Ok(_) => {}
-        Err(mysql::Error::IoError(e)) => {
-            eprintln!("{}", e);
-        }
-        Err(mysql::Error::MySqlError(e)) => {
-            println!("error clearing records: {}", e);
-        }
-        Err(e) => {
-            eprintln!("got a general error: {}", e);
-        }
-    })
+pub fn create_pay() -> Result<()> {
+    let insert_str = "CREATE TABLE IF NOT EXISTS pay (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        pay DECIMAL NOT NULL, 
+        hours DECIMAL NOT NULL, 
+        paydate DATE NOT NULL);";
+    let conn = get_db().unwrap();
+    let mut stmt = conn.prepare(insert_str)?;
+    stmt.execute([])?;
+    Ok(())
 }
 
-pub fn create_pay() -> std::result::Result<(), mysql::Error> {
-    let opts = get_opts();
-    let pool = Pool::new_manual(1, 1, opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
-    let insert_str = "CREATE TABLE `testDB`.`pay` (`id` INT NOT NULL AUTO_INCREMENT, `pay` DECIMAL NOT NULL, `hours` DECIMAL NOT NULL, `paydate` DATE NOT NULL, PRIMARY KEY (`id`));";
-
-    Ok(match conn.query_drop(&insert_str) {
-        Ok(_) => {}
-        Err(mysql::Error::IoError(e)) => {
-            eprintln!("{}", e);
-        }
-        Err(mysql::Error::MySqlError(e)) => {
-            println!("error clearing records: {}", e);
-        }
-        Err(e) => {
-            eprintln!("got a general error: {}", e);
-        }
-    })
-}
-
-pub fn select_all_pay(
-) -> std::result::Result<std::result::Result<std::vec::Vec<Pay>, mysql::Error>, mysql::Error> {
-    let opts = get_opts();
-    let pool = Pool::new_manual(1, 1, opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
-    let selected_pay = conn.query_map(
-        "select pay, hours, paydate from pay;",
-        |(pay, hours, paydate)| -> Pay {
-            Pay {
-                pay,
-                hours,
-                paydate,
-                info_label: "".to_string(),
+pub fn select_all_pay() -> Result<Vec<Pay>> {
+    let insert_str = "select pay, hours, paydate from pay;";
+    let conn = get_db().unwrap();
+    let mut stmt = conn.prepare(insert_str).unwrap();
+    let selected_pay = stmt
+        .query_map(params![], |row| {
+            Ok(Pay {
+                pay: row.get_unwrap(0),
+                hours: row.get_unwrap(1),
+                info_label: row.get_unwrap(2),
+                paydate: "".to_string(),
                 payrate: "".to_string(),
                 withholding: "".to_string(),
                 roth_ira: "".to_string(),
-            }
-        },
-    );
+            })
+        })
+        .unwrap();
 
-    Ok(selected_pay)
+    selected_pay.collect()
 }
 
-pub fn select_all_emp(
-) -> std::result::Result<std::result::Result<std::vec::Vec<Employee>, mysql::Error>, mysql::Error> {
-    let opts = get_opts();
-    let pool = Pool::new_manual(1, 1, opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
+pub fn select_all_emp() -> Result<Vec<Employee>> {
+    let select_string =
+        "select id, first, last, address, state, marital, dependents, pay from employees;";
+    let conn = get_db().unwrap();
+    let mut stmt = conn.prepare(select_string).unwrap();
 
-    let selected_emp = conn.query_map(
-        "select id, first, last, address, state, marital, dependents, pay from employees;",
-        |(id, first_name, last_name, address, state, married, dependents, pay)| Employee {
-            id,
-            first_name,
-            last_name,
-            address,
-            state,
-            married,
-            dependents,
-            pay,
-        },
-    );
+    let selected_emp = stmt
+        .query_map(params![], |row| {
+            Ok(Employee {
+                id: "".to_string(),
+                first_name: row.get_unwrap(1),
+                last_name: row.get_unwrap(2),
+                address: row.get_unwrap(3),
+                state: row.get_unwrap(4),
+                married: row.get_unwrap(5),
+                dependents: row.get_unwrap(6),
+                pay: row.get_unwrap(7),
+            })
+        })
+        .unwrap();
 
-    Ok(selected_emp)
+    selected_emp.collect()
 }
 
-// CREATE TABLE `testDB`.`pay` (
-//   `id` INT NOT NULL AUTO_INCREMENT,
-//   `pay` DECIMAL NOT NULL,
-//   `hours` DECIMAL NOT NULL,
-//   `paydate` DATE NOT NULL,
-//   PRIMARY KEY (`id`));
-
-pub fn insert_new_pay(
-    pay: String,
-    hours: String,
-    date: String,
-) -> std::result::Result<(), mysql::Error> {
-    let opts = get_opts();
-    let pool = Pool::new_manual(1, 1, opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
-
-    let insert_str = format!(
-        "insert into pay (pay, hours, paydate) values('{}','{}','{}');",
-        pay, hours, date
-    );
-
-    Ok(match conn.query_drop(&insert_str) {
-        Ok(_) => {}
-        Err(mysql::Error::IoError(e)) => {
-            eprintln!("{}", e);
-        }
-        Err(mysql::Error::MySqlError(e)) => {
-            println!("error inserting pay: {}", e);
-            println!("{}", insert_str);
-        }
-        Err(e) => {
-            print!("got a general error");
-            eprintln!("{}", e);
-        }
-    })
+pub fn insert_new_pay(pay: String, hours: String, date: String) -> Result<()> {
+    let insert_str = "insert into pay (pay, hours, paydate) values(?,?,?);";
+    let conn = get_db().unwrap();
+    let mut stmt = conn.prepare(insert_str).unwrap();
+    stmt.execute([pay, hours, date])?;
+    Ok(())
 }
 
 ///a method to update the employee record
@@ -187,29 +110,15 @@ pub fn update_employee(
     dependents: String,
     marital: String,
     pay: String,
-) -> std::result::Result<(), mysql::Error> {
-    let opts = get_opts();
-    let pool = Pool::new_manual(1, 1, opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
+) -> Result<()> {
     let _marital_adj = "0";
-
-    let update_str = format!(
-    "update employee set first = '{}', last = '{}', address = '{}', state = '{}', marital = '{}', dependents = '{}', pay = '{}' where id = '{}';", first_name, last_name, address, state, marital.to_string(), dependents, pay, id);
-
-    Ok(match conn.query_drop(&update_str) {
-        Ok(_) => {}
-        Err(mysql::Error::IoError(e)) => {
-            eprintln!("{}", e);
-        }
-        Err(mysql::Error::MySqlError(e)) => {
-            print!("got a mysql error");
-            println!("{}", e);
-        }
-        Err(e) => {
-            print!("got a general error");
-            eprintln!("{}", e);
-        }
-    })
+    let update_str = "update employees set first = ?, last = ?, address = ?, state = ?, marital = ?, dependents = ?, pay = ? where id = ?;";
+    let conn = get_db().unwrap();
+    let mut stmt = conn.prepare(update_str).unwrap();
+    stmt.execute([
+        id, first_name, last_name, address, state, dependents, marital, pay,
+    ])?;
+    Ok(())
 }
 
 pub fn insert_new_employee(
@@ -220,55 +129,86 @@ pub fn insert_new_employee(
     dependents: String,
     marital: String,
     pay: String,
-) -> std::result::Result<(), mysql::Error> {
-    let opts = get_opts();
-    let pool = Pool::new_manual(1, 1, opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
+) -> Result<()> {
     let _marital_adj = "0";
-
-    let insert_str = format!(
-        "insert into employees (id, first, last, address, state, marital, dependents, pay) values('1','{}','{}','{}','{}', '{}', '{}', '{}');", first_name, last_name, address, state, marital.to_string(), dependents, pay);
-
-    Ok(match conn.query_drop(&insert_str) {
-        Ok(_) => {}
-        Err(mysql::Error::IoError(e)) => {
-            eprintln!("{}", e);
-        }
-        Err(mysql::Error::MySqlError(e)) => {
-            print!("got a mysql error");
-            println!("{}", e);
-        }
-        Err(e) => {
-            print!("got a general error");
-            eprintln!("{}", e);
-        }
-    })
+    println!("inserting new employee: {}", first_name);
+    let insert_str = "insert into employees (first, last, address, state, marital, dependents, pay) values(?,?,?,?,?,?,?);";
+    let conn = get_db().unwrap();
+    let mut stmt = conn.prepare(insert_str).unwrap();
+    stmt.execute([
+        first_name, last_name, address, state, dependents, marital, pay,
+    ])?;
+    print!("Inserting new employee complete \n");
+    Ok(())
 }
 
 pub fn get_emp_obj() -> Result<Vec<Employee>> {
-    let opts = get_opts();
-    let pool = Pool::new_manual(1, 1, opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
+    let select_string =
+        "select id, first, last, address, state, marital, dependents, pay from employees;";
+    let conn = get_db().unwrap();
+    let mut stmt = conn.prepare(select_string).unwrap();
 
-    let selected_emp = conn.query_map(
-        "select id, first, last, address, state, marital, dependents, pay from employees;",
-        |(id, first_name, last_name, address, state, married, dependents, pay)| Employee {
-            id,
-            first_name,
-            last_name,
-            address,
-            state,
-            married,
-            dependents,
-            pay,
-        },
-    );
-
-    selected_emp
+    let selected_emp = stmt
+        .query_map(params![], |row| {
+            Ok(Employee {
+                id: row.get_unwrap(0),
+                first_name: row.get_unwrap(1),
+                last_name: row.get_unwrap(2),
+                address: row.get_unwrap(3),
+                state: row.get_unwrap(4),
+                married: row.get_unwrap(5),
+                dependents: row.get_unwrap(6),
+                pay: row.get_unwrap(7),
+            })
+        })
+        .unwrap();
+    selected_emp.collect()
 }
 
-fn get_opts() -> Opts {
-    let url = CONN_STR.to_string();
-    Opts::from_url(&*url).unwrap()
+pub(crate) fn has_db() -> Result<bool> {
+    if let Err(err) = create_pay() {
+        println!("could not init pay table: {}", err)
+    } else {
+        print!("pay table init success\n")
+    }
+    if let Err(err) = create_emp() {
+        println!("could not init employee table: {}", err)
+    } else {
+        print!("employee table init success\n")
+    }
+    Ok(true)
 }
 
+pub fn drop_tables() -> Result<bool> {
+    if let Err(err) = exec_drop_tables() {
+        println!("could not drop tables: {}", err)
+    } else {
+        print!("pay table init success\n")
+    }
+
+    if let Err(err) = create_pay() {
+        println!("could not init pay table: {}", err)
+    } else {
+        print!("pay table init success\n")
+    }
+
+    if let Err(err) = create_emp() {
+        println!("could not init employee table: {}", err)
+    } else {
+        print!("employee table init success\n")
+    }
+    Ok(true)
+}
+
+fn exec_drop_tables() -> Result<bool> {
+
+    let conn = get_db().unwrap();
+    let drop_emp = "DROP TABLE employees;";
+    let mut stmt = conn.prepare(drop_emp)?;
+    stmt.execute([])?;
+
+    let drop_pay = "DROP TABLE pay;";
+    let mut stmt = conn.prepare(drop_pay)?;
+    stmt.execute([])?;
+    Ok(true)
+}
