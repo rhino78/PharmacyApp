@@ -60,7 +60,5 @@ impl super::View for Database {
             let _drop = db_conn::drop_tables();
         }
         self.ui_control(ui);
-
-
     }
 }

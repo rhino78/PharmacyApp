@@ -53,8 +53,7 @@ impl Employee {
         let emps = select_all_emp();
         match emps {
             Ok(emp) => {
-                let bruh = emp;
-                egui::Grid::new("bruh").striped(true).show(_ui, |ui| {
+                egui::Grid::new("Employee Grid").striped(true).show(_ui, |ui| {
                     // ui.label("ID");
                     ui.label("First Name");
                     ui.label("Last Name");
@@ -65,7 +64,7 @@ impl Employee {
                     ui.label("Pay");
                     ui.end_row();
 
-                    for b in bruh.iter() {
+                    for b in emp{
                         // ui.label(b.id.to_string());
                         ui.label(b.first_name.to_string());
                         ui.label(b.last_name.to_string());

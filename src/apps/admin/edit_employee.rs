@@ -44,16 +44,15 @@ impl Default for EditEmployee {
 
 impl EditEmployee {
     pub fn ui_control(&mut self, ui: &mut egui::Ui) {
-        let emp_list = db_conn::get_emp_obj();
-        let bruh = emp_list.unwrap();
+        let emp_list = db_conn::get_emp_obj().unwrap();
 
-        print_type_of(&bruh);
+        print_type_of(&emp_list);
 
         egui::ComboBox::from_label("Select Employee").show_index(
             ui,
             &mut self.selected_index,
-            bruh.len(),
-            |i| bruh[i].first_name.to_string(),
+            emp_list.len(),
+            |i| emp_list[i].first_name.to_string(),
         );
 
         ui.label("Selected Id");
@@ -62,44 +61,6 @@ impl EditEmployee {
         ui.text_edit_singleline(&mut self.first_name.to_string());
         ui.separator();
     }
-
-    // pub fn ui_control_old(&mut self, ui: &mut egui::Ui) {
-    //     let emp_list = db_conn::get_emp_obj();
-    //     let bruh = emp_list.unwrap();
-
-    //     egui::ComboBox::from_label("Select Employee").show_index(
-    //         ui,
-    //         &mut self.selected_index,
-    //         bruh.len(),
-    //         |i| bruh[i].first_name.to_string(),
-    //     );
-
-    //     let mut fname = bruh[self.selected_index].first_name.to_string();
-    //     let mut lname = bruh[self.selected_index].last_name.to_string();
-    //     let mut address = bruh[self.selected_index].address.to_string();
-    //     let mut state = bruh[self.selected_index].state.to_string();
-    //     let mut married = bruh[self.selected_index].married.to_string();
-    //     let mut dependents = bruh[self.selected_index].dependents.to_string();
-    //     let mut id = bruh[self.selected_index].id.to_string();
-    //     let mut pay = bruh[self.selected_index].pay.to_string();
-
-    //     ui.label("Selected Id");
-    //     ui.text_edit_singleline(&mut id);
-    //     ui.label("Selected First Name");
-    //     ui.text_edit_singleline(&mut fname);
-    //     ui.label("Selected Last Name");
-    //     ui.text_edit_singleline(&mut lname);
-    //     ui.label("Selected address");
-    //     ui.text_edit_singleline(&mut address);
-    //     ui.label("Selected state");
-    //     ui.text_edit_singleline(&mut state);
-    //     ui.label("Selected dependents");
-    //     ui.text_edit_singleline(&mut dependents);
-    //     ui.label("Selected married");
-    //     ui.text_edit_singleline(&mut married);
-    //     ui.label("Selected pay");
-    //     ui.text_edit_singleline(&mut pay);
-    // }
 }
 
 fn print_type_of<T>(_: &T) {
@@ -126,8 +87,8 @@ impl super::View for EditEmployee {
     fn ui(&mut self, ui: &mut Ui) {
         self.ui_control(ui);
 
-        let addbtn = egui::Button::new("Edit Employee in database");
-        if ui.add(addbtn).clicked() {
+        let edit_employee = egui::Button::new("Edit Employee in database");
+        if ui.add(edit_employee).clicked() {
             if let Err(e) = db_conn::update_employee(
                 self.id.to_string(),
                 self.first_name.to_string(),
@@ -138,7 +99,7 @@ impl super::View for EditEmployee {
                 self.married.to_string(),
                 self.pay.to_string(),
             ) {
-                eprintln!("bruh: {}", e)
+                eprintln!("could not edit employee: {}", e)
             }
         }
     }

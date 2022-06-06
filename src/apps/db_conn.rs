@@ -55,8 +55,8 @@ pub fn select_all_pay() -> Result<Vec<Pay>> {
         .query_map(params![], |row| {
             Ok(Pay {
                 pay: row.get_unwrap(0),
-                hours: row.get_unwrap(1),
-                info_label: row.get_unwrap(2),
+                hours:  row.get_unwrap(1),
+                info_label: "".to_string(),
                 paydate: "".to_string(),
                 payrate: "".to_string(),
                 withholding: "".to_string(),
@@ -201,7 +201,6 @@ pub fn drop_tables() -> Result<bool> {
 }
 
 fn exec_drop_tables() -> Result<bool> {
-
     let conn = get_db().unwrap();
     let drop_emp = "DROP TABLE employees;";
     let mut stmt = conn.prepare(drop_emp)?;

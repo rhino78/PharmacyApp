@@ -2,8 +2,8 @@ use super::db_conn::{self, select_all_pay};
 use egui::{containers::*, *};
 
 pub struct Pay {
-    pub pay: String,
-    pub hours: String,
+    pub pay: f32,
+    pub hours: i32,
     pub info_label: String,
     // pub paydate: Option<Date<Utc>>,
     // pub paydate: Date<Utc>,
@@ -16,8 +16,8 @@ pub struct Pay {
 impl Default for Pay {
     fn default() -> Self {
         Self {
-            pay: "".to_string(),
-            hours: "".to_string(),
+            pay: 0.0,
+            hours: 0,
             info_label: "test".to_string(),
             // paydate: Some(Utc.ymd(2021, 1, 1)),
             paydate: "".to_string(),
@@ -52,7 +52,7 @@ impl epi::App for Pay {
                 if ui.add(clearbtn).clicked() {
                     if let Err(e) = db_conn::clear_records() {
                         self.info_label = e.to_string();
-                        eprintln!("bruh: {}", e)
+                        eprintln!("could not clear all records: {}", e)
                     } else {
                         self.info_label = "Employee List Cleared".to_string();
                     }
@@ -79,14 +79,13 @@ impl Pay {
         let pay_list = select_all_pay();
         match pay_list {
             Ok(pay_list) => {
-                let bruh = pay_list;
                 egui::Grid::new("pay_list").striped(true).show(_ui, |ui| {
                     ui.label("pay");
                     ui.label("hours");
                     ui.label("paydate");
                     ui.end_row();
 
-                    for b in bruh.iter() {
+                    for b in pay_list.iter() {
                         ui.label(b.pay.to_string());
                         ui.label(b.hours.to_string());
                         ui.label(b.paydate.to_string());
@@ -94,7 +93,7 @@ impl Pay {
                     }
                 });
             }
-            Err(e) => eprintln!("{}", e),
+            Err(e) => eprintln!("could not fetch pay data: {}", e),
         };
     }
 }
