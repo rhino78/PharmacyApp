@@ -66,8 +66,6 @@ impl InsertEmployee {
                 .text("per hour"),
         )
         .on_hover_text("Pay");
-        // ui.text_edit_singleline(&mut self.pay)
-        //     .on_hover_text("type the pay here");
     }
 }
 
@@ -106,7 +104,7 @@ impl super::View for InsertEmployee {
                 self.married.to_string(),
                 self.pay.to_string(),
             ) {
-                eprintln!("bruh: {}", e)
+                eprintln!("Could not add new Employee: {}", e)
             }
         }
     }

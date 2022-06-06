@@ -46,14 +46,15 @@ impl PayEntry {
         ui.label("roth");
         ui.label(self.roth_ira.to_string());
         ui.separator();
-        let clearbtn = egui::Button::new("Insert New Pay Record");
-        if ui.add(clearbtn).clicked() {
+
+        let new_pay_btn = egui::Button::new("Insert New Pay Record");
+        if ui.add(new_pay_btn).clicked() {
             if let Err(e) = db_conn::insert_new_pay(
                 self.pay.to_string(),
                 self.hours.to_string(),
                 self.paydate.to_string(),
             ) {
-                eprintln!("bruh: {}", e)
+                eprintln!("Could not insert new pay record: {}", e)
             }
         }
     }
