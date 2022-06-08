@@ -44,9 +44,7 @@ impl Default for EditEmployee {
 
 impl EditEmployee {
     pub fn ui_control(&mut self, ui: &mut egui::Ui) {
-        let emp_list = db_conn::get_emp_obj().unwrap();
-
-        print_type_of(&emp_list);
+        let emp_list = db_conn::select_all_emp().unwrap();
 
         egui::ComboBox::from_label("Select Employee").show_index(
             ui,
@@ -61,10 +59,6 @@ impl EditEmployee {
         ui.text_edit_singleline(&mut self.first_name.to_string());
         ui.separator();
     }
-}
-
-fn print_type_of<T>(_: &T) {
-    println!("{}", std::any::type_name::<T>())
 }
 
 impl super::Admin for EditEmployee {

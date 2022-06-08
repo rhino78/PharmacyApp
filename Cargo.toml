@@ -18,10 +18,13 @@ egui-datepicker = "*"
 chrono = "*"
 derivative = "*"
 sysinfo = "*"
-rusqlite = "0.27.0"
+# rusqlite = "0.27.0"
 
 serde = { version = "1", features = ["derive"], optional = true }
 
+[dependencies.rusqlite]
+version = "0.27.0"
+features = ["bundled"]
 
 [features]
 default = []

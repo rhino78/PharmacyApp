@@ -55,7 +55,7 @@ pub fn select_all_pay() -> Result<Vec<Pay>> {
         .query_map(params![], |row| {
             Ok(Pay {
                 pay: row.get_unwrap(0),
-                hours:  row.get_unwrap(1),
+                hours: row.get_unwrap(1),
                 info_label: "".to_string(),
                 paydate: "".to_string(),
                 payrate: "".to_string(),
@@ -142,30 +142,7 @@ pub fn insert_new_employee(
     Ok(())
 }
 
-pub fn get_emp_obj() -> Result<Vec<Employee>> {
-    let select_string =
-        "select id, first, last, address, state, marital, dependents, pay from employees;";
-    let conn = get_db().unwrap();
-    let mut stmt = conn.prepare(select_string).unwrap();
-
-    let selected_emp = stmt
-        .query_map(params![], |row| {
-            Ok(Employee {
-                id: row.get_unwrap(0),
-                first_name: row.get_unwrap(1),
-                last_name: row.get_unwrap(2),
-                address: row.get_unwrap(3),
-                state: row.get_unwrap(4),
-                married: row.get_unwrap(5),
-                dependents: row.get_unwrap(6),
-                pay: row.get_unwrap(7),
-            })
-        })
-        .unwrap();
-    selected_emp.collect()
-}
-
-pub(crate) fn has_db() -> Result<bool> {
+pub fn has_db() -> Result<bool> {
     if let Err(err) = create_pay() {
         println!("could not init pay table: {}", err)
     } else {
