@@ -8,16 +8,16 @@ rust-version = "1.56"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+# crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 eframe = "0.16.0" # Gives us egui, epi and web+native backends
 egui = "0.16.0" # Gives us egui, epi and web+native backends
 epi = "0.16.0" # Gives us egui, epi and web+native backends
 egui-datepicker = "*"
-chrono = "*"
-derivative = "*"
-sysinfo = "*"
+# chrono = "*"
+# derivative = "*"
+# sysinfo = "*"
 # rusqlite = "0.27.0"
 
 serde = { version = "1", features = ["derive"], optional = true }
@@ -30,10 +30,10 @@ features = ["bundled"]
 default = []
 persistence = ["eframe/persistence", "serde"] # Enable if you want to persist app state on shutdown
 
-[profile.release]
-opt-level = 2 # fast and small wasm
+# [profile.release]
+# opt-level = 2 # fast and small wasm
 
-[patch.crates-io]
+# [patch.crates-io]
 
 # If you want to use the bleeding edge version of `egui`:
 # eframe = { git = "https://github.com/emilk/egui", branch = "master" }
