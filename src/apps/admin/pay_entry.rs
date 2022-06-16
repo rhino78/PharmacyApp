@@ -1,6 +1,6 @@
 use egui::*;
 
-use crate::apps::db_conn;
+use crate::apps::database::insert::insert_new_pay;
 
 pub struct PayEntry {
     employee: String,
@@ -49,7 +49,7 @@ impl PayEntry {
 
         let new_pay_btn = egui::Button::new("Insert New Pay Record");
         if ui.add(new_pay_btn).clicked() {
-            if let Err(e) = db_conn::insert_new_pay(
+            if let Err(e) = insert_new_pay(
                 self.pay.to_string(),
                 self.hours.to_string(),
                 self.paydate.to_string(),

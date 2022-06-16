@@ -1,5 +1,6 @@
-use super::db_conn::{self, select_all_pay};
 use egui::{containers::*, *};
+
+use super::database::{delete::clear_records, select::select_all_pay};
 
 pub struct Pay {
     pub pay: f32,
@@ -50,7 +51,7 @@ impl epi::App for Pay {
 
                 let clearbtn = egui::Button::new("Clear All records");
                 if ui.add(clearbtn).clicked() {
-                    if let Err(e) = db_conn::clear_records() {
+                    if let Err(e) = clear_records() {
                         self.info_label = e.to_string();
                         eprintln!("could not clear all records: {}", e)
                     } else {

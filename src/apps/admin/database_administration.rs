@@ -1,6 +1,6 @@
 use egui::{CtxRef, Ui, Window};
 
-use crate::apps::db_conn;
+use crate::apps::database::connect::{drop_tables, has_db};
 
 pub struct Database {
     // service: String,
@@ -43,7 +43,7 @@ impl super::View for Database {
         });
         ui.separator();
         if !self.is_initialized {
-            let foo = db_conn::has_db();
+            let foo = has_db();
             match foo {
                 Ok(_f) => self.is_initialized = true,
                 Err(e) => println!("error getting databse: {:?}", e),
@@ -57,7 +57,7 @@ impl super::View for Database {
 
         let clearbtn = egui::Button::new("create new database");
         if ui.add(clearbtn).clicked() {
-            let _drop = db_conn::drop_tables();
+            let _drop = drop_tables();
         }
         self.ui_control(ui);
     }

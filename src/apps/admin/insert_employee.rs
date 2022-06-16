@@ -1,6 +1,6 @@
 use egui::*;
 
-use crate::apps::db_conn;
+use crate::apps::database::insert::insert_new_employee;
 
 pub struct InsertEmployee {
     first_name: String,
@@ -95,7 +95,7 @@ impl super::View for InsertEmployee {
 
         let addbtn = egui::Button::new("Add new Employee");
         if ui.add(addbtn).clicked() {
-            if let Err(e) = db_conn::insert_new_employee(
+            if let Err(e) = insert_new_employee(
                 self.first_name.to_string(),
                 self.last_name.to_string(),
                 self.address.to_string(),
