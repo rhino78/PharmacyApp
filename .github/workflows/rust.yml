@@ -11,10 +11,13 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
+    # missing -lxcb-shape and -lxcb-xfixes
+#      # add musl tools for build
+    - name: Install libs
+      run: sudo apt install libxcb-composite0-dev musl-tools
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose
