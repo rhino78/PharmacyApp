@@ -1,5 +1,5 @@
 mod admin;
-pub mod db_conn;
+pub mod database;
 mod employee_app;
 mod pay;
 

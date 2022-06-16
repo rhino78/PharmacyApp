@@ -1,6 +1,6 @@
 use egui::*;
 
-use crate::apps::db_conn;
+use crate::apps::database::{select::select_all_emp, update::update_employee};
 
 pub struct EditEmployee {
     id: String,
@@ -44,7 +44,7 @@ impl Default for EditEmployee {
 
 impl EditEmployee {
     pub fn ui_control(&mut self, ui: &mut egui::Ui) {
-        let emp_list = db_conn::select_all_emp().unwrap();
+        let emp_list = select_all_emp().unwrap();
 
         egui::ComboBox::from_label("Select Employee").show_index(
             ui,
@@ -83,7 +83,7 @@ impl super::View for EditEmployee {
 
         let edit_employee = egui::Button::new("Edit Employee in database");
         if ui.add(edit_employee).clicked() {
-            if let Err(e) = db_conn::update_employee(
+            if let Err(e) = update_employee(
                 self.id.to_string(),
                 self.first_name.to_string(),
                 self.last_name.to_string(),
@@ -93,7 +93,8 @@ impl super::View for EditEmployee {
                 self.married.to_string(),
                 self.pay.to_string(),
             ) {
-                eprintln!("could not edit employee: {}", e)
+                eprintln!("could not edit employee: {}", e);
+                ui.label(stringify!("could not edit employee: {}", e));
             }
         }
     }
